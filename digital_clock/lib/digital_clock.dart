@@ -4,7 +4,6 @@
 
 import 'dart:async';
 
-import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_clock_helper/model.dart';
 import 'package:intl/intl.dart';
@@ -42,8 +41,8 @@ class DigitalClock extends StatefulWidget {
 class _DigitalClockState extends State<DigitalClock> {
   DateTime _dateTime = DateTime.now();
   Timer _timer;
-  int yearValue,dayValue;
- int monthValue;
+  int yearValue, dayValue;
+  int monthValue;
 
   GlobalKey myTextKey = GlobalKey();
   RenderBox myTextRenderBox;
@@ -96,9 +95,7 @@ class _DigitalClockState extends State<DigitalClock> {
     });
   }
 
-  void upDateDayValue(){
-
-  }
+  void upDateDayValue() {}
 
   @override
   Widget build(BuildContext context) {
@@ -112,82 +109,91 @@ class _DigitalClockState extends State<DigitalClock> {
     final day = DateFormat('dd').format(_dateTime);
     final month = DateFormat('MM').format(_dateTime);
     final year = DateFormat('yyyy').format(_dateTime);
-    final miliseconds = DateFormat('mmm').format(_dateTime);
     yearValue = int.parse(year);
     monthValue = int.parse(month);
     dayValue = int.parse(day);
-    final dayName = new DateTime.utc(yearValue, monthValue, dayValue);
+    final date = new DateTime.utc(yearValue, monthValue, dayValue);
+    final dayByData = DateFormat('EEEE').format(date);
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Stack(
         children: <Widget>[
           Center(
             child: Container(
+              width: double.infinity,
               decoration: BoxDecoration(
                   image: DecorationImage(
                       image: colors[_Element.background], fit: BoxFit.fill)),
               child: Padding(
-                padding: const EdgeInsets.only(top: 90.0),
+                padding: const EdgeInsets.only(top: 70.0),
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
-                      Container(
-                        child: Stack(
-                          children: <Widget>[
-                            Column(
-                              children: <Widget>[
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                      top: 15.0, right: 10.0, left: 10.0),
-                                  child: Text(
-                                    hour + ":" + minute + ":" + second,
-                                    key: myTextKey,
-                                    style: new TextStyle(
-                                        fontSize: 100.0,
-                                        fontFamily: 'LuckiestGuy',
-                                        fontWeight: FontWeight.bold,
-                                        foreground: Paint()
-                                          ..shader =
-                                              getTextGradient(myTextRenderBox)),
+                      Card(
+                        color: Colors.black,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0)),
+                        child: Container(
+                          child: Stack(
+                            children: <Widget>[
+                              Column(
+                                children: <Widget>[
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 15.0, right: 10.0, left: 10.0),
+                                    child: Text(
+                                      hour + ":" + minute,
+                                      key: myTextKey,
+                                      style: new TextStyle(
+                                          fontSize: 70.0,
+                                          fontFamily: 'LuckiestGuy',
+                                          fontWeight: FontWeight.normal,
+                                          foreground: Paint()
+                                            ..shader = getTextGradient(
+                                                myTextRenderBox)),
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       CircleAvatar(
-                        backgroundColor: Colors.white,
+                        radius: 40.0,
+                        backgroundColor: Colors.black,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 15.0),
+                          child: Text(
+                            second,
+                            style: TextStyle(
+                                fontSize: 50.0,
+                                fontFamily: 'LuckiestGuy',
+                                foreground: Paint()
+                                  ..shader = getTextGradient(myTextRenderBox)),
+                          ),
+                        ),
                       ),
-                      Expanded(
-                        child: FlareActor(
-                          "assets/dottedsecond.flr",
-                          animation: "dotanimate",
-                          color: Colors.orangeAccent,
-                          fit: BoxFit.fill,
+                      Card(
+                        color: Colors.black,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0)),
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                              top: 15.0, left: 5.0, right: 5.0),
+                          child: Text(
+                            dayByData,
+                            style: TextStyle(
+                                fontSize: 50.0,
+                                fontFamily: 'Merriweather',
+                                foreground: Paint()
+                                  ..shader = getTextGradient(myTextRenderBox)),
+                          ),
                         ),
                       ),
                     ]),
               ),
             ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(
-                    top: 5.0, right: 10.0, left: 10.0),
-                child: Text(
-                  day + "/" + month + "/" + year,
-                  style: new TextStyle(
-                      fontSize: 50.0,
-                      fontFamily: 'LuckiestGuy',
-                      fontWeight: FontWeight.bold,
-                      foreground: Paint()
-                        ..shader = getTextGradient(myTextRenderBox)),
-                ),
-              ),
-            ],
           ),
         ],
       ),
@@ -199,11 +205,9 @@ class _DigitalClockState extends State<DigitalClock> {
     return LinearGradient(
       colors: <Color>[
         Colors.black54,
-        Colors.black54,
         Colors.orangeAccent,
         Colors.orangeAccent,
         Colors.black54,
-        Colors.black54
       ],
     ).createShader(Rect.fromLTWH(
         renderBox.localToGlobal(Offset.zero).dx,
@@ -212,7 +216,3 @@ class _DigitalClockState extends State<DigitalClock> {
         renderBox.size.height));
   }
 }
-/*
- var berlinWallFell = new DateTime.utc(1989, DateTime.november, 9);
-assert(berlinWallFell.weekday == DateTime.thursday);
- */

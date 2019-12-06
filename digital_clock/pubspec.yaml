@@ -30,6 +30,9 @@ flutter:
     - family: LuckiestGuy
       fonts:
         - asset: assets/fonts/LuckiestGuy-Regular.ttf
+    - family: Merriweather
+      fonts:
+        - asset: assets/fonts/Merriweather-Regular.ttf
   assets:
     - dottedsecond.flr
     - wallpaper.jpeg
