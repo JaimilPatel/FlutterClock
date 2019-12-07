@@ -43,7 +43,7 @@ class _DigitalClockState extends State<DigitalClock> {
   Timer _timer;
   int yearValue, dayValue;
   int monthValue;
-
+  String _weather;
   GlobalKey myTextKey = GlobalKey();
   RenderBox myTextRenderBox;
 
@@ -81,7 +81,7 @@ class _DigitalClockState extends State<DigitalClock> {
 
   void _updateModel() {
     setState(() {
-      // Cause the clock to rebuild when the model changes.
+
     });
   }
 
@@ -95,13 +95,18 @@ class _DigitalClockState extends State<DigitalClock> {
     });
   }
 
-  void upDateDayValue() {}
+//  void _upDateWeatherCondition() {
+//    setState(() {
+//      _weather = widget.model.weatherCondition.toString();
+//    });
+//  }
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).brightness == Brightness.light
         ? _lightTheme
         : _darkTheme;
+
     final hour =
         DateFormat(widget.model.is24HourFormat ? 'HH' : 'hh').format(_dateTime);
     final minute = DateFormat('mm').format(_dateTime);
@@ -114,6 +119,8 @@ class _DigitalClockState extends State<DigitalClock> {
     dayValue = int.parse(day);
     final date = new DateTime.utc(yearValue, monthValue, dayValue);
     final dayByData = DateFormat('EEEE').format(date);
+    print("Current Weather : " + widget.model.weatherCondition.toString());
+    _weather = widget.model.weatherString;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Stack(
@@ -123,74 +130,64 @@ class _DigitalClockState extends State<DigitalClock> {
               width: double.infinity,
               decoration: BoxDecoration(
                   image: DecorationImage(
-                      image: colors[_Element.background], fit: BoxFit.fill)),
+                      image: _weather == WeatherCondition.cloudy ? AssetImage("assets/cloudy.jpeg")
+                      : AssetImage("assets/thunderstorm.jpeg")
+                      , fit: BoxFit.cover)),
               child: Padding(
-                padding: const EdgeInsets.only(top: 70.0),
+                padding: const EdgeInsets.only(top: 100.0),
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
-                      Card(
-                        color: Colors.black,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0)),
-                        child: Container(
-                          child: Stack(
-                            children: <Widget>[
-                              Column(
-                                children: <Widget>[
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        top: 15.0, right: 10.0, left: 10.0),
-                                    child: Text(
-                                      hour + ":" + minute,
-                                      key: myTextKey,
-                                      style: new TextStyle(
-                                          fontSize: 70.0,
-                                          fontFamily: 'LuckiestGuy',
-                                          fontWeight: FontWeight.normal,
-                                          foreground: Paint()
-                                            ..shader = getTextGradient(
-                                                myTextRenderBox)),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
+                      Container(
+                        child: Stack(
+                          children: <Widget>[
+                            Column(
+                              children: <Widget>[
+                                Text(
+                                  hour + ":" + minute,
+                                  key: myTextKey,
+                                  style: new TextStyle(
+                                      fontSize: 200.0,
+                                      fontFamily: 'LuckiestGuy',
+                                      fontWeight: FontWeight.normal,
+                                      foreground: Paint()
+                                        ..shader =
+                                            getTextGradient(myTextRenderBox)),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                       CircleAvatar(
                         radius: 40.0,
-                        backgroundColor: Colors.black,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 15.0),
-                          child: Text(
-                            second,
-                            style: TextStyle(
-                                fontSize: 50.0,
-                                fontFamily: 'LuckiestGuy',
-                                foreground: Paint()
-                                  ..shader = getTextGradient(myTextRenderBox)),
-                          ),
+                        backgroundColor: Colors.transparent,
+                        child: Text(
+                          second,
+                          style: TextStyle(
+                              fontSize: 50.0,
+                              fontFamily: 'LuckiestGuy',
+                              foreground: Paint()
+                                ..shader = getTextGradient(myTextRenderBox)),
                         ),
                       ),
-                      Card(
-                        color: Colors.black,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0)),
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                              top: 15.0, left: 5.0, right: 5.0),
-                          child: Text(
-                            dayByData,
-                            style: TextStyle(
-                                fontSize: 50.0,
-                                fontFamily: 'Merriweather',
-                                foreground: Paint()
-                                  ..shader = getTextGradient(myTextRenderBox)),
-                          ),
-                        ),
-                      ),
+//                      Card(
+//                        color: Colors.black,
+//                        shape: RoundedRectangleBorder(
+//                            borderRadius: BorderRadius.circular(10.0)),
+//                        child: Padding(
+//                          padding: const EdgeInsets.only(
+//                              top: 15.0, left: 5.0, right: 5.0),
+//                          child: Text(
+//                            dayByData,
+//                            style: TextStyle(
+//                                fontSize: 50.0,
+//                                fontFamily: 'Merriweather',
+//                                foreground: Paint()
+//                                  ..shader = getTextGradient(myTextRenderBox)),
+//                          ),
+//                        ),
+//                      ),
                     ]),
               ),
             ),
@@ -214,5 +211,26 @@ class _DigitalClockState extends State<DigitalClock> {
         renderBox.localToGlobal(Offset.zero).dy,
         renderBox.size.width,
         renderBox.size.height));
+  }
+
+  String _setImage() {
+    String weatherInfo = widget.model.weatherCondition.toString();
+    print("BackgroundIMage : " + weatherInfo);
+    String _backgroundImage;
+    if (weatherInfo == WeatherCondition.cloudy) {
+      _backgroundImage = "assets/cloudy.jpeg";
+    } else if (weatherInfo == WeatherCondition.foggy) {
+      _backgroundImage = "assets/foggy.jpeg";
+    } else if (weatherInfo == WeatherCondition.rainy) {
+      _backgroundImage = "assets/rainy.jpeg";
+    } else if (weatherInfo == WeatherCondition.snowy) {
+      _backgroundImage = "assets/snowy.jpeg";
+    } else if (weatherInfo == WeatherCondition.sunny) {
+      _backgroundImage = "assets/sunny.jpeg";
+    } else if (weatherInfo == WeatherCondition.thunderstorm) {
+      _backgroundImage = "assets/thunderstorm.jpeg";
+    }
+    print("BackgroundIMage : " + _backgroundImage);
+    return _backgroundImage;
   }
 }
