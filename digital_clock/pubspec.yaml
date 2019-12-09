@@ -13,6 +13,8 @@ dependencies:
   cupertino_icons: ^0.1.2
   flare_flutter:
   gradient_text: ^1.0.2
+  flip_panel: ^1.0.1
+
 
 dev_dependencies:
   flutter_test:
@@ -44,3 +46,5 @@ flutter:
     - snowy.jpeg
     - thunderstorm.jpeg
     - sunny.jpeg
+    - windy.jpeg
+    - fire.gif

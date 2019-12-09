@@ -4,6 +4,7 @@
 
 import 'dart:async';
 
+import 'package:flip_panel/flip_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_clock_helper/model.dart';
 import 'package:intl/intl.dart';
@@ -15,15 +16,13 @@ enum _Element {
 }
 
 final _lightTheme = {
-  _Element.background: AssetImage("assets/sunrise.jpeg"),
   _Element.text: Colors.black,
-  _Element.shadow: Colors.transparent,
+  _Element.shadow: Color(0xFF81B3FE),
 };
 
 final _darkTheme = {
-  _Element.background: AssetImage("assets/sunset.jpeg"),
   _Element.text: Colors.black,
-  _Element.shadow: Colors.transparent,
+  _Element.shadow: Colors.black,
 };
 
 /// A basic digital clock.
@@ -46,6 +45,7 @@ class _DigitalClockState extends State<DigitalClock> {
   String _weather;
   GlobalKey myTextKey = GlobalKey();
   RenderBox myTextRenderBox;
+  Color secondColor;
 
   @override
   void initState() {
@@ -53,6 +53,7 @@ class _DigitalClockState extends State<DigitalClock> {
     widget.model.addListener(_updateModel);
     _updateTime();
     _updateModel();
+    _updateSecondColor();
     WidgetsBinding.instance.addPostFrameCallback((_) => _recordSize());
   }
 
@@ -80,9 +81,7 @@ class _DigitalClockState extends State<DigitalClock> {
   }
 
   void _updateModel() {
-    setState(() {
-
-    });
+    setState(() {});
   }
 
   void _updateTime() {
@@ -95,11 +94,36 @@ class _DigitalClockState extends State<DigitalClock> {
     });
   }
 
-//  void _upDateWeatherCondition() {
-//    setState(() {
-//      _weather = widget.model.weatherCondition.toString();
-//    });
-//  }
+  void _updateSecondColor() {
+    setState(() {
+      String weatherInfo = widget.model.weatherString;
+      switch (weatherInfo) {
+        case "cloudy":
+          secondColor = Colors.grey;
+          break;
+        case "foggy":
+          secondColor = Colors.black54;
+          break;
+        case "rainy":
+          secondColor = Colors.green;
+          break;
+        case "snowy":
+          secondColor = Colors.white;
+          break;
+        case "sunny":
+          secondColor = Colors.grey;
+          break;
+        case "thunderstorm":
+          secondColor = Colors.grey;
+          break;
+        case "windy":
+          secondColor = Colors.grey;
+          break;
+        default:
+          secondColor = Colors.grey;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -119,8 +143,9 @@ class _DigitalClockState extends State<DigitalClock> {
     dayValue = int.parse(day);
     final date = new DateTime.utc(yearValue, monthValue, dayValue);
     final dayByData = DateFormat('EEEE').format(date);
-    print("Current Weather : " + widget.model.weatherCondition.toString());
-    _weather = widget.model.weatherString;
+    print("Current Weather : " + widget.model.weatherString);
+    print("Temperature : " + widget.model.temperatureString);
+    print("Current Location :" + widget.model.location);
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Stack(
@@ -130,64 +155,67 @@ class _DigitalClockState extends State<DigitalClock> {
               width: double.infinity,
               decoration: BoxDecoration(
                   image: DecorationImage(
-                      image: _weather == WeatherCondition.cloudy ? AssetImage("assets/cloudy.jpeg")
-                      : AssetImage("assets/thunderstorm.jpeg")
-                      , fit: BoxFit.cover)),
+                      image: AssetImage(_setImage()), fit: BoxFit.cover)),
               child: Padding(
-                padding: const EdgeInsets.only(top: 100.0),
+                padding: const EdgeInsets.only(top: 70.0),
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
-                      Container(
-                        child: Stack(
-                          children: <Widget>[
-                            Column(
-                              children: <Widget>[
-                                Text(
-                                  hour + ":" + minute,
-                                  key: myTextKey,
-                                  style: new TextStyle(
-                                      fontSize: 200.0,
-                                      fontFamily: 'LuckiestGuy',
-                                      fontWeight: FontWeight.normal,
-                                      foreground: Paint()
-                                        ..shader =
-                                            getTextGradient(myTextRenderBox)),
-                                ),
-                              ],
+                      Text(
+                        widget.model.location,
+                        style: TextStyle(fontSize: 30.0, color: Colors.black),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10.0),
+                        child: Container(
+                          child: Stack(
+                            children: <Widget>[
+                              Column(
+                                children: <Widget>[
+                                  Text(
+                                    hour + ":" + minute,
+                                    key: myTextKey,
+                                    style: new TextStyle(
+                                        fontSize: 200.0,
+                                        fontFamily: 'LuckiestGuy',
+                                        fontWeight: FontWeight.normal,
+                                        foreground: Paint()
+                                          ..shader =
+                                              getTextGradient(myTextRenderBox)),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          FlipPanel.builder(
+                            itemBuilder: (context, index) => Container(
+                              color: secondColor,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 6.0),
+                              child: Text(
+                                second,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 50.0,
+                                    color: Colors.white),
+                              ),
                             ),
-                          ],
-                        ),
-                      ),
-                      CircleAvatar(
-                        radius: 40.0,
-                        backgroundColor: Colors.transparent,
-                        child: Text(
-                          second,
-                          style: TextStyle(
-                              fontSize: 50.0,
-                              fontFamily: 'LuckiestGuy',
-                              foreground: Paint()
-                                ..shader = getTextGradient(myTextRenderBox)),
-                        ),
-                      ),
-//                      Card(
-//                        color: Colors.black,
-//                        shape: RoundedRectangleBorder(
-//                            borderRadius: BorderRadius.circular(10.0)),
-//                        child: Padding(
-//                          padding: const EdgeInsets.only(
-//                              top: 15.0, left: 5.0, right: 5.0),
-//                          child: Text(
-//                            dayByData,
-//                            style: TextStyle(
-//                                fontSize: 50.0,
-//                                fontFamily: 'Merriweather',
-//                                foreground: Paint()
-//                                  ..shader = getTextGradient(myTextRenderBox)),
-//                          ),
-//                        ),
-//                      ),
+                            itemsCount: second.length,
+                            period: const Duration(milliseconds: 1000),
+                            loop: 1,
+                          ),
+                          Text(
+                            widget.model.temperatureString,
+                            style:
+                                TextStyle(fontSize: 40.0, color: Colors.white),
+                          ),
+                        ],
+                      )
                     ]),
               ),
             ),
@@ -199,38 +227,159 @@ class _DigitalClockState extends State<DigitalClock> {
 
   Shader getTextGradient(RenderBox renderBox) {
     if (renderBox == null) return null;
-    return LinearGradient(
-      colors: <Color>[
-        Colors.black54,
-        Colors.orangeAccent,
-        Colors.orangeAccent,
-        Colors.black54,
-      ],
-    ).createShader(Rect.fromLTWH(
-        renderBox.localToGlobal(Offset.zero).dx,
-        renderBox.localToGlobal(Offset.zero).dy,
-        renderBox.size.width,
-        renderBox.size.height));
+    Shader newShader;
+    String _weatherInfo = widget.model.weatherString;
+    switch (_weatherInfo) {
+      case "cloudy":
+        newShader = LinearGradient(
+          colors: <Color>[
+            Colors.black54,
+            Colors.grey,
+            Colors.grey,
+            Colors.black54,
+          ],
+        ).createShader(Rect.fromLTWH(
+            renderBox.localToGlobal(Offset.zero).dx,
+            renderBox.localToGlobal(Offset.zero).dy,
+            renderBox.size.width,
+            renderBox.size.height));
+        break;
+      case "foggy":
+        newShader = LinearGradient(
+          colors: <Color>[
+            Colors.black54,
+            Colors.grey,
+            Colors.grey,
+            Colors.black54,
+          ],
+        ).createShader(Rect.fromLTWH(
+            renderBox.localToGlobal(Offset.zero).dx,
+            renderBox.localToGlobal(Offset.zero).dy,
+            renderBox.size.width,
+            renderBox.size.height));
+        break;
+      case "rainy":
+        newShader = LinearGradient(
+          colors: <Color>[
+            Colors.green,
+            Colors.pinkAccent,
+            Colors.pinkAccent,
+            Colors.green,
+          ],
+        ).createShader(Rect.fromLTWH(
+            renderBox.localToGlobal(Offset.zero).dx,
+            renderBox.localToGlobal(Offset.zero).dy,
+            renderBox.size.width,
+            renderBox.size.height));
+        break;
+      case "snowy":
+        newShader = LinearGradient(
+          colors: <Color>[
+            Colors.black,
+            Colors.white70,
+            Colors.white70,
+            Colors.black,
+          ],
+        ).createShader(Rect.fromLTWH(
+            renderBox.localToGlobal(Offset.zero).dx,
+            renderBox.localToGlobal(Offset.zero).dy,
+            renderBox.size.width,
+            renderBox.size.height));
+        break;
+      case "sunny":
+        newShader = LinearGradient(
+          colors: <Color>[
+            Colors.green,
+            Colors.orangeAccent,
+            Colors.orangeAccent,
+            Colors.green,
+          ],
+        ).createShader(Rect.fromLTWH(
+            renderBox.localToGlobal(Offset.zero).dx,
+            renderBox.localToGlobal(Offset.zero).dy,
+            renderBox.size.width,
+            renderBox.size.height));
+        break;
+      case "thunderstorm":
+        newShader = LinearGradient(
+          colors: <Color>[
+            Colors.black54,
+            Colors.grey,
+            Colors.brown,
+            Colors.grey,
+            Colors.black54,
+          ],
+        ).createShader(Rect.fromLTWH(
+            renderBox.localToGlobal(Offset.zero).dx,
+            renderBox.localToGlobal(Offset.zero).dy,
+            renderBox.size.width,
+            renderBox.size.height));
+        break;
+      case "windy":
+        newShader = LinearGradient(
+          colors: <Color>[
+            Colors.grey,
+            Colors.grey,
+            Colors.green,
+            Colors.green,
+            Colors.grey,
+            Colors.grey,
+          ],
+        ).createShader(Rect.fromLTWH(
+            renderBox.localToGlobal(Offset.zero).dx,
+            renderBox.localToGlobal(Offset.zero).dy,
+            renderBox.size.width,
+            renderBox.size.height));
+        break;
+    }
+    return newShader;
   }
 
   String _setImage() {
-    String weatherInfo = widget.model.weatherCondition.toString();
-    print("BackgroundIMage : " + weatherInfo);
+    String weatherInfo = widget.model.weatherString;
     String _backgroundImage;
-    if (weatherInfo == WeatherCondition.cloudy) {
-      _backgroundImage = "assets/cloudy.jpeg";
-    } else if (weatherInfo == WeatherCondition.foggy) {
-      _backgroundImage = "assets/foggy.jpeg";
-    } else if (weatherInfo == WeatherCondition.rainy) {
-      _backgroundImage = "assets/rainy.jpeg";
-    } else if (weatherInfo == WeatherCondition.snowy) {
-      _backgroundImage = "assets/snowy.jpeg";
-    } else if (weatherInfo == WeatherCondition.sunny) {
-      _backgroundImage = "assets/sunny.jpeg";
-    } else if (weatherInfo == WeatherCondition.thunderstorm) {
-      _backgroundImage = "assets/thunderstorm.jpeg";
+    switch (weatherInfo) {
+      case "cloudy":
+        _backgroundImage = "assets/cloudy.jpeg";
+        break;
+      case "foggy":
+        _backgroundImage = "assets/foggy.jpeg";
+        break;
+      case "rainy":
+        _backgroundImage = "assets/rainy.jpeg";
+        break;
+      case "snowy":
+        _backgroundImage = "assets/snowy.jpeg";
+        break;
+      case "sunny":
+        _backgroundImage = "assets/sunny.jpeg";
+        break;
+      case "thunderstorm":
+        _backgroundImage = "assets/thunderstorm.jpeg";
+        break;
+      case "windy":
+        _backgroundImage = "assets/windy.jpeg";
+        break;
+      default:
+        _backgroundImage = "assets/sunrise.jpeg";
     }
-    print("BackgroundIMage : " + _backgroundImage);
     return _backgroundImage;
+  }
+
+  String _upDateTemperature() {
+    double currentTemp =
+        double.parse(widget.model.temperatureString.replaceAll("°C", ""));
+    double highTemp =
+        double.parse(widget.model.highString.replaceAll("°C", ""));
+    double lowTemp = double.parse(widget.model.lowString.replaceAll("°C", ""));
+    print("Current Temperature " + currentTemp.toString());
+    print("High Temperature " + highTemp.toString());
+    String temperatureLogo;
+    if (currentTemp > 26) {
+      temperatureLogo = "assets/fire.gif";
+    } else {
+      temperatureLogo = "assets/sunny.jpeg";
+    }
+    return temperatureLogo;
   }
 }
