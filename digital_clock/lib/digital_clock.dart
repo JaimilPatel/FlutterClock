@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:flip_panel/flip_panel.dart';
+import 'package:digital_clock/AllStrings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_clock_helper/model.dart';
 import 'package:intl/intl.dart';
@@ -39,16 +39,19 @@ class DigitalClock extends StatefulWidget {
   _DigitalClockState createState() => _DigitalClockState();
 }
 
-class _DigitalClockState extends State<DigitalClock> {
+class _DigitalClockState extends State<DigitalClock>
+    with SingleTickerProviderStateMixin {
   DateTime _dateTime = DateTime.now();
   Timer _timer;
   int yearValue, dayValue;
   int monthValue;
+  AllStrings allStrings = AllStrings();
 
   //String _weather;
   GlobalKey myTextKey = GlobalKey();
   RenderBox myTextRenderBox;
   Color secondColor;
+  AnimationController animationController;
 
   @override
   void initState() {
@@ -58,6 +61,9 @@ class _DigitalClockState extends State<DigitalClock> {
     _updateModel();
     _updateSecondColor();
     WidgetsBinding.instance.addPostFrameCallback((_) => _recordSize());
+    animationController = AnimationController(
+        vsync: this, duration: Duration(milliseconds: 1000));
+    animationController.repeat();
   }
 
   void _recordSize() {
@@ -123,7 +129,6 @@ class _DigitalClockState extends State<DigitalClock> {
           Center(
             child: Container(
               width: double.infinity,
-              color: Color(0xFF1F46E8),
               decoration: BoxDecoration(
                   color: colors[_Element.background],
                   image: DecorationImage(
@@ -156,12 +161,11 @@ class _DigitalClockState extends State<DigitalClock> {
                                     padding: const EdgeInsets.only(left: 20.0),
                                     child: Column(
                                       children: <Widget>[
-                                        FlipPanel.builder(
-                                          itemBuilder: (context, index) =>
-                                              Container(
-                                            color: Colors.black,
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 6.0),
+                                        AnimatedBuilder(
+                                          animation: animationController,
+                                          child: CircleAvatar(
+                                            radius: 40.0,
+                                            backgroundColor: Colors.black54,
                                             child: Text(
                                               second,
                                               style: TextStyle(
@@ -170,18 +174,24 @@ class _DigitalClockState extends State<DigitalClock> {
                                                   color: _updateSecondColor()),
                                             ),
                                           ),
-                                          itemsCount: second.length,
-                                          period: const Duration(
-                                              milliseconds: 1000),
-                                          loop: 1,
+                                          builder: (BuildContext context,
+                                              Widget _widget) {
+                                            return new Transform.translate(
+                                              offset: Offset(
+                                                  10.0,
+                                                  animationController.value *
+                                                      10),
+                                              child: _widget,
+                                            );
+                                          },
                                         ),
                                         Padding(
                                           padding:
-                                              const EdgeInsets.only(top: 8.0),
+                                              const EdgeInsets.only(top: 15.0),
                                           child: Text(
                                             "" + _setHourString(),
                                             style: TextStyle(
-                                                fontSize: 40.0,
+                                                fontSize: 50.0,
                                                 fontFamily: 'LuckiestGuy',
                                                 fontWeight: FontWeight.normal,
                                                 foreground: Paint()
@@ -214,18 +224,6 @@ class _DigitalClockState extends State<DigitalClock> {
                           ),
                         ),
                       )
-//                      Row(
-//                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//                        children: <Widget>[
-//                          Center(
-//                            child: Text(
-//                              widget.model.temperatureString,
-//                              style: TextStyle(
-//                                  fontSize: 40.0, color: Colors.black),
-//                            ),
-//                          ),
-//                        ],
-//                      )
                     ]),
               ),
             ),
@@ -307,9 +305,9 @@ class _DigitalClockState extends State<DigitalClock> {
       case "thunderstorm":
         newShader = LinearGradient(
           colors: <Color>[
-            Colors.grey,
+            Colors.black,
             Colors.brown,
-            Colors.grey,
+            Colors.black,
           ],
         ).createShader(Rect.fromLTWH(
             renderBox.localToGlobal(Offset.zero).dx,
@@ -339,51 +337,30 @@ class _DigitalClockState extends State<DigitalClock> {
     String _backgroundImage;
     switch (weatherInfo) {
       case "cloudy":
-        _backgroundImage = "assets/cloudy.jpeg";
+        _backgroundImage = allStrings.cloudyImagePath;
         break;
       case "foggy":
-        _backgroundImage = "assets/foggy.jpeg";
+        _backgroundImage = allStrings.foggyImagePath;
         break;
       case "rainy":
-        _backgroundImage = "assets/rainy.jpeg";
+        _backgroundImage = allStrings.rainyImagePath;
         break;
       case "snowy":
-        _backgroundImage = "assets/snowy.jpeg";
+        _backgroundImage = allStrings.snowyImagePath;
         break;
       case "sunny":
-        _backgroundImage = "assets/sunny.jpeg";
+        _backgroundImage = allStrings.sunnyImagePath;
         break;
       case "thunderstorm":
-        _backgroundImage = "assets/thunderstorm.jpeg";
+        _backgroundImage = allStrings.thunderstormImagePath;
         break;
       case "windy":
-        _backgroundImage = "assets/windy.jpeg";
+        _backgroundImage = allStrings.windyImagePath;
         break;
       default:
-        _backgroundImage = "assets/sunny.jpeg";
+        _backgroundImage = allStrings.sunnyImagePath;
     }
     return _backgroundImage;
-  }
-
-  Color _upDateTemperatureColor() {
-    double currentTemp =
-        double.parse(widget.model.temperatureString.replaceAll("°C", ""));
-    double highTemp =
-        double.parse(widget.model.highString.replaceAll("°C", ""));
-    double lowTemp = double.parse(widget.model.lowString.replaceAll("°C", ""));
-    Color temperatureBaseColor;
-    if (currentTemp > 26) {
-      temperatureBaseColor = Colors.red;
-    } else if (currentTemp < 26 && currentTemp > 15) {
-      temperatureBaseColor = Colors.orangeAccent;
-    } else if (currentTemp < 15 && currentTemp > 0) {
-      temperatureBaseColor = Colors.lightBlue[200];
-    } else if (currentTemp < 0) {
-      temperatureBaseColor = Colors.white;
-    } else {
-      temperatureBaseColor = Colors.orangeAccent;
-    }
-    return temperatureBaseColor;
   }
 
   String _setHourString() {
@@ -391,9 +368,9 @@ class _DigitalClockState extends State<DigitalClock> {
         .format(_dateTime));
     String hourString;
     if (hour >= 12 && hour <= 24) {
-      hourString = "PM";
+      hourString = allStrings.AM;
     } else {
-      hourString = "AM";
+      hourString = allStrings.PM;
     }
     return hourString;
   }
@@ -411,7 +388,7 @@ class _DigitalClockState extends State<DigitalClock> {
         secondColor = Colors.grey;
         break;
       case "snowy":
-        secondColor = Colors.grey;
+        secondColor = Colors.white;
         break;
       case "sunny":
         secondColor = Colors.blueAccent;
