@@ -27,9 +27,6 @@ final _darkTheme = {
   _Element.shadow: Color(0xFF174EA6),
 };
 
-/// A basic digital clock.
-///
-/// You can do better than this!
 class DigitalClock extends StatefulWidget {
   const DigitalClock(this.model);
 
@@ -47,7 +44,6 @@ class _DigitalClockState extends State<DigitalClock>
   int monthValue;
   AllStrings allStrings = AllStrings();
 
-  //String _weather;
   GlobalKey myTextKey = GlobalKey();
   RenderBox myTextRenderBox;
   Color secondColor;
@@ -119,8 +115,6 @@ class _DigitalClockState extends State<DigitalClock>
     yearValue = int.parse(year);
     monthValue = int.parse(month);
     dayValue = int.parse(day);
-    //final date = new DateTime.utc(yearValue, monthValue, dayValue);
-    // final dayByData = DateFormat('EEEE').format(date);
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Stack(
