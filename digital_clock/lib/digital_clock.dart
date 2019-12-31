@@ -152,7 +152,7 @@ class _DigitalClockState extends State<DigitalClock>
                                               getTextGradient(myTextRenderBox)),
                                   ),
                                   Padding(
-                                    padding: const EdgeInsets.only(left: 20.0),
+                                    padding: const EdgeInsets.only(left: 10.0),
                                     child: Column(
                                       children: <Widget>[
                                         AnimatedBuilder(
@@ -362,9 +362,9 @@ class _DigitalClockState extends State<DigitalClock>
         .format(_dateTime));
     String hourString;
     if (hour >= 12 && hour <= 24) {
-      hourString = allStrings.AM;
-    } else {
       hourString = allStrings.PM;
+    } else {
+      hourString = allStrings.AM;
     }
     return hourString;
   }
